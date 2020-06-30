@@ -12,6 +12,7 @@ const $ = {
   likeButton: document.querySelector('#like_button'),
   commentContainer: document.querySelector('#comments'),
   commentForm: document.querySelector('#comment_form'),
+  error: document.querySelector('.error'),
 }
 
 $.likeButton.addEventListener('click', increaseLikes)
@@ -67,27 +68,46 @@ function deleteComment(event){
 
 function newComment(event){
   event.preventDefault()
-  const formData = new FormData($.commentForm)
-  const comment = formData.get('comment')
-  $.commentForm.reset()
+  const comment = extractFormData()
   const $li = appendComment(comment, NaN)
   boilerPlateFetch(url.comments, 'POST', {
-    image_id: imageId, 
+    image_id: imageId,
     content: comment
   })
-    .then(results => updateNewCommentFromAPI(results, $li))
+    .then( result => result !== null
+      ? updateNewCommentFromAPI(result, $li)
+      : $li.remove()
+    )
+}
+
+function extractFormData(){
+  const formData = new FormData($.commentForm)
+  $.commentForm.reset()
+  return formData.get('comment')
 }
 
 function updateNewCommentFromAPI(comment, $li){
   $li.dataset.id = comment.id
+  $.error.textContent = ''
 }
 
-async function boilerPlateFetch(url, method, body) {
-  const response = await fetch(url, {
+function boilerPlateFetch(url, method, body) {
+  return fetch(url, {
     method: method,
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body), 
   })
-  return response.json()
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(parsedResponse => {
+          throw new Error(parsedResponse.errors.content[0])
+          // With limited API documentation ^^ is the most effective use of time.
+        })
+      } else {
+        return response.json() 
+      }})
+    .catch(error => {
+      $.error.textContent = error.message
+      return null
+    })
 }
-
