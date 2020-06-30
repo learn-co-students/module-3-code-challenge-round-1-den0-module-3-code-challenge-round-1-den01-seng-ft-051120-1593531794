@@ -39,18 +39,20 @@ function parseComments(comments){
 
 function appendComment(comment, commentId){
   const $li = document.createElement('li')
-  $li.textContent = comment
-  $li.dataset.id = commentId
-  $li.style.marginBottom = '1em'
+  commentListData($li, comment, commentId)
   appendDeleteButton($li)
   $.commentContainer.append($li)
   return $li
 }
 
+function commentListData($li, comment, commentId){
+  $li.textContent = comment
+  $li.dataset.id = commentId
+}
+
 function appendDeleteButton($li){
   const $remove = document.createElement('button')
   $remove.textContent = 'x'
-  $remove.style.marginLeft = '1em'
   $remove.addEventListener('click', deleteComment)
   $li.append($remove)
 }
