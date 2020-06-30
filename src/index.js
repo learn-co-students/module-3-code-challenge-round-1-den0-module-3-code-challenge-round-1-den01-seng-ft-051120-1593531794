@@ -22,11 +22,11 @@ fetch(url.image)
   .then(response => response.json())
   .then(populatePageWithAPIData)
 
-function populatePageWithAPIData(results){
-  $.image.src = results.url
-  $.imageTitle.textContent = results.name
-  $.likes.textContent = results.like_count
-  parseComments(results.comments)
+function populatePageWithAPIData(result){
+  $.image.src = result.url
+  $.imageTitle.textContent = result.name
+  $.likes.textContent = result.like_count
+  parseComments(result.comments)
 }
 
 function increaseLikes(){
